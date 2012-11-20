@@ -73,11 +73,13 @@
             (_mods[k] && index(handler.mods, +k) == -1)) modifiersMatch = false;
         // call the handler and stop the event if neccessary
         if((handler.mods.length == 0 && !_mods[16] && !_mods[18] && !_mods[17] && !_mods[91]) || modifiersMatch){
-          if(handler.method(event, handler)===false){
-            if(event.preventDefault) event.preventDefault();
-              else event.returnValue = false;
-            if(event.stopPropagation) event.stopPropagation();
-            if(event.cancelBubble) event.cancelBubble = true;
+          if ((typeof handler.localFilter === 'function' && handler.localFilter(event)) || typeof handler.localFilter !== 'function') {
+              if(handler.method(event, handler)===false){
+                  if(event.preventDefault) event.preventDefault();
+                  else event.returnValue = false;
+                  if(event.stopPropagation) event.stopPropagation();
+                  if(event.cancelBubble) event.cancelBubble = true;
+              }
           }
         }
       }
@@ -100,7 +102,7 @@
   }
 
   // parse and assign shortcut
-  function assignKey(key, scope, method){
+  function assignKey(key, scope, method, localFilter){
     var keys, mods, i, mi;
     if (method === undefined) {
       method = scope;
@@ -127,7 +129,7 @@
       key = _MAP[key] || key.toUpperCase().charCodeAt(0);
       // ...store handler
       if (!(key in _handlers)) _handlers[key] = [];
-      _handlers[key].push({ shortcut: keys[i], scope: scope, method: method, key: keys[i], mods: mods });
+      _handlers[key].push({ shortcut: keys[i], scope: scope, method: method, localFilter: localFilter, key: keys[i], mods: mods });
     }
   };
 
