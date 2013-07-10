@@ -147,8 +147,19 @@
   function getScope(){ return _scope || 'all' };
 
   // unbind all handlers for given key in current scope
-  function unbindKey(key, scope) {
-    key = _MAP[key] || key.toUpperCase().charCodeAt(0);
+  function unbindKey(key, scope, element) {
+      shortcut = key;
+      mods = [];
+      key = key.split('+');
+      if(key.length > 1){
+          mods = key.slice(0,key.length-1);
+          for (mi = 0; mi < mods.length; mi++)
+              mods[mi] = _MODIFIERS[mods[mi]];
+          key = [key[key.length-1]];
+      }
+      // convert to keycode and...
+      key = key[0]
+      key = _MAP[key] || key.toUpperCase().charCodeAt(0);
     if (scope === undefined) {
       scope = getScope();
     }
@@ -158,7 +169,7 @@
     var i;
     for (i in _handlers[key]) {
       obj = _handlers[key][i];
-      if (obj.scope === scope) {
+      if (obj.scope === scope && obj.element === element && shortcut === obj.shortcut) {
         _handlers[key][i] = {};
       }
     }
